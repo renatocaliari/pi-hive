@@ -1,19 +1,21 @@
 {
   "name": "pi-hive",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+  "description": "Hierarchical Agent Swarm for Pi.dev",
+  "main": "src/index.ts",
+  "pi": {
+    "extension": "src/index.ts",
+    "skills": [
+      "skills/hive.md"
+    ]
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "type": "commonjs",
-  "devDependencies": {
-    "typescript": "^5.9.3"
+  "scripts": {
+    "install-local": "mkdir -p ~/.pi/agent/extensions && cp src/index.ts ~/.pi/agent/extensions/hive.ts && mkdir -p ~/.pi/agent/skills && cp skills/hive.md ~/.pi/agent/skills/hive.md"
   },
   "dependencies": {
-    "@sinclair/typebox": "^0.34.48"
+    "@sinclair/typebox": "^0.34.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.0.0"
   }
 }
