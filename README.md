@@ -8,6 +8,7 @@
 - **Strict Isolation:** Uses `git worktree` to run Workers in isolated branches/directories, preventing workspace pollution.
 - **Recursive Delegation:** Workers can become Sub-Queens, creating their own sub-hives for massive scale.
 - **Visual Planning:** Automatic integration with **Plannotator** for visual review and approval of plans.
+- **Complexity Triage:** Automatic assessment to decide when to delegate vs execute directly.
 - **Judge Cells:** Dedicated workers (Judges) review code changes before they are merged into the main branch.
 - **TUI Dashboard:** Real-time status widgets and activity logs directly in your terminal.
 
@@ -22,14 +23,16 @@
 
 ## 🛠 Usage
 
-1. **Initialize:** Ask Pi to "Initialize Hive structure".
-2. **Plan:** Provide a complex task. Pi will create a `.hive/plan.md`.
-3. **Review:** Pi will automatically open the plan in **Plannotator**. Approve it there.
-4. **Delegate:** Once approved, Pi will spawn Workers for each cell.
-5. **Merge:** When a task is DONE, use `/hive merge [id]` or ask Pi to merge it.
+- **Activate:** Just run `/hive on` in any project.
+- **Plan:** Provide a complex task. Pi will create a `.hive/plan.md`.
+- **Review:** Pi will automatically open the plan in **Plannotator**. Approve it there.
+- **Delegate:** Once approved, Pi will spawn Workers for each cell.
+- **Monitor:** Use `/hive status` or `/hive tree` to see progress.
+- **Merge:** When a task is DONE, use `/hive merge [id]` or ask Pi to merge it.
 
 ## 📖 Commands
 
+- `/hive on`: Initialize Hive mode in the current project.
 - `/hive status`: Refresh the UI status widget.
 - `/hive tree`: View the hierarchical agent nest.
 - `/hive logs`: Stream recent worker activity.
