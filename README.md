@@ -4,16 +4,18 @@
 
 ## 🚀 One-Step Installation
 
-Choose the method that works best for you:
-
-### Option A: Official Pi CLI (Recommended)
-```bash
-pi install git+https://github.com/renatocaliari/pi-hive
-```
-
-### Option B: Quick Shell Installer
+### Option A: Quick Shell Installer (Recommended)
+This is the fastest way to install Pi-Hive globally on your machine.
 ```bash
 curl -fsSL https://raw.githubusercontent.com/renatocaliari/pi-hive/main/install.sh | bash
+```
+
+### Option B: Local Clone & Install
+If you want to manage the code yourself:
+```bash
+git clone https://github.com/renatocaliari/pi-hive.git
+cd pi-hive
+npm run install-local
 ```
 
 ### Option C: Skills.sh (Npx)
@@ -37,6 +39,15 @@ npx skills add renatocaliari/pi-hive
 2. **Plan:** Provide a complex task. Pi will create a `.hive/plan.md`.
 3. **Review:** Pi will automatically open the plan in **Plannotator**. Approve it there.
 4. **Delegate:** Once approved, Pi will spawn Workers for each cell.
+
+## 📖 Commands
+
+- `/hive on`: Initialize Hive mode in the current project.
+- `/hive status`: Refresh the UI status widget.
+- `/hive tree`: View the hierarchical agent nest.
+- `/hive logs`: Stream recent worker activity.
+- `/hive plan`: Review the current `plan.md`.
+- `/hive review`: Re-submit the plan to Plannotator.
 
 ## 📜 License
 
