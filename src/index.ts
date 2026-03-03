@@ -1,4 +1,6 @@
 import { Type } from "@sinclair/typebox";
+import fs from "node:fs";
+import path from "node:path";
 
 export default function(pi: any) {
 
@@ -7,8 +9,9 @@ export default function(pi: any) {
   // ==========================================
   
   pi.on("session_start", async (ctx: any) => {
-    const { exitCode } = await ctx.bash("ls .hive 2>/dev/null");
-    if (exitCode === 0) {
+    // Use native fs to check for directory to avoid ctx.bash issues in events
+    const hivePath = path.join(process.cwd(), ".hive");
+    if (fs.existsSync(hivePath)) {
       ctx.ui.notify("🐝 Hive Protocol Active", "success");
     }
   });
@@ -22,8 +25,9 @@ export default function(pi: any) {
         case "on":
         case "start":
           ctx.ui.notify("🐝 Activating Hive Mode...", "info");
-          await ctx.bash("pi --non-interactive 'Call create_hive_structure()'");
-          await ctx.bash("pi --non-interactive 'Call render_hive_tree()'");
+          // Inside commands/tools, we can use pi.run or similar if bash is not directly on ctx
+          // But usually in commands it is available. Let's be safe:
+          await ctx.bash("mkdir -p .hive/cells .hive/archive .hive/logs");
           return "Hive Mode is now ON. Decomposing complex tasks automatically.";
         case "review":
           ctx.ui.notify("Submitting for visual review...", "info");
