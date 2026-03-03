@@ -1,14 +1,19 @@
 import { Type } from "@sinclair/typebox";
 
+console.log("🐝 [HIVE] Extension file loaded");
+
 export default function(pi: any) {
+  console.log("🐝 [HIVE] Extension function called");
 
   // ==========================================
   // 1. SLASH COMMANDS
   // ==========================================
-  
+
+  console.log("🐝 [HIVE] Registering /hive command");
   pi.registerCommand("hive", {
     description: "Hive Master Controller for orchestration and swarm management.",
     async handler(args: string[], ctx: any) {
+      console.log("🐝 [HIVE] Command handler called with args:", args);
       const action = (args && args.length > 0) ? args[0].trim().toLowerCase() : "help";
       
       switch(action) {
