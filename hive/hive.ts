@@ -128,6 +128,7 @@ export default function(pi: ExtensionAPI) {
     label: "Check Hive Status",
     description: "Updates the status table widget.",
     promptSnippet: "Hive: Refreshes the swarm status dashboard.",
+    parameters: Type.Object({}),
     async execute(toolCallId: any, params: any, signal: any, onUpdate: any, ctx: any) {
       const cwd = ctx.cwd || process.cwd();
       try {
@@ -157,6 +158,7 @@ export default function(pi: ExtensionAPI) {
     label: "Show Hive Tree",
     description: "Updates the hierarchical tree widget.",
     promptSnippet: "Hive: Renders the agent hierarchy nest.",
+    parameters: Type.Object({}),
     async execute(toolCallId: any, params: any, signal: any, onUpdate: any, ctx: any) {
       const cwd = ctx.cwd || process.cwd();
       try {
