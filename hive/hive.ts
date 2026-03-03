@@ -16,47 +16,46 @@ export default function(pi: ExtensionAPI) {
 
         // Handle empty args explicitly
         if (!args || args.trim() === "") {
-          return "Usage: /hive [on|status|tree|logs|review]\nType '/hive help' for more info.";
+          ctx.ui.notify("Usage: /hive [on|status|tree|logs|review]", "info");
+          return;
         }
 
         const action = args.trim().toLowerCase();
 
         switch(action) {
           case "on":
-            ctx.ui.notify("🐝 Activating Hive Mode...", "info");
             execSync("mkdir -p .hive/cells .hive/archive .hive/logs", { cwd, stdio: "ignore" });
-            ctx.ui.notify("✅ Hive Mode is now ON", "success");
-            return "Use '/skill load hive' to begin orchestration.";
+            ctx.ui.notify("🐝 Hive Mode is now ON. Use '/skill load hive' to begin orchestration.", "success");
+            return;
 
           case "review":
-            ctx.ui.notify("Submitting for visual review...", "info");
             execSync(`pi --non-interactive 'Call submit_to_plannotator(read_file(".hive/plan.md"))'`, { cwd, stdio: "ignore" });
             ctx.ui.notify("✅ Plan submitted to Plannotator", "success");
-            return "Check your browser for the visual plan.";
+            return;
 
           case "status":
             execSync(`pi --non-interactive 'Call get_hive_status()'`, { cwd, stdio: "ignore" });
-            ctx.ui.notify("✅ Status refreshed", "success");
-            return "Check the Hive Status widget.";
+            ctx.ui.notify("✅ Hive status refreshed. Check the widget.", "success");
+            return;
 
           case "tree":
             execSync(`pi --non-interactive 'Call render_hive_tree()'`, { cwd, stdio: "ignore" });
-            ctx.ui.notify("✅ Hierarchy updated", "success");
-            return "Check the Hive Nest widget.";
+            ctx.ui.notify("✅ Hive tree updated. Check the widget.", "success");
+            return;
 
           case "logs":
             execSync(`pi --non-interactive 'Call stream_worker_logs()'`, { cwd, stdio: "ignore" });
-            ctx.ui.notify("✅ Logs updated", "success");
-            return "Check the Logs widget.";
+            ctx.ui.notify("✅ Hive logs updated. Check the widget.", "success");
+            return;
 
           case "help":
           default:
-            return "Usage: /hive [on|status|tree|logs|review]";
+            ctx.ui.notify("Usage: /hive [on|status|tree|logs|review]", "info");
+            return;
         }
       } catch (error) {
         const errorMsg = error instanceof Error ? error.message : String(error);
-        ctx.ui.notify(`Hive error: ${errorMsg}`, "error");
-        return `Hive command failed: ${errorMsg}`;
+        ctx.ui.notify(`🐝 Hive error: ${errorMsg}`, "error");
       }
     },
   });
