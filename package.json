@@ -2,15 +2,15 @@
   "name": "pi-hive",
   "version": "1.0.0",
   "description": "Hierarchical Agent Swarm for Pi.dev",
-  "main": "src/index.ts",
+  "main": "src/hive.ts",
   "pi": {
-    "extension": "src/index.ts",
+    "extension": "src/hive.ts",
     "skills": [
       "skills/hive/SKILL.md"
     ]
   },
   "scripts": {
-    "install-local": "mkdir -p ~/.pi/agent/extensions && cp src/index.ts ~/.pi/agent/extensions/hive.ts && mkdir -p ~/.pi/skills/hive && cp skills/hive/SKILL.md ~/.pi/skills/hive/SKILL.md"
+    "install-local": "mkdir -p ~/.pi/agent/extensions && cp src/hive.ts ~/.pi/agent/extensions/hive.ts && mkdir -p ~/.pi/skills/hive && cp skills/hive/SKILL.md ~/.pi/skills/hive/SKILL.md"
   },
   "dependencies": {
     "@sinclair/typebox": "^0.34.0"
