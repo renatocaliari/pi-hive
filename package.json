@@ -13,10 +13,10 @@
   },
   "pi": {
     "extensions": [
-      "./hive.ts"
+      "./hive/hive.ts"
     ],
     "skills": [
-      "./skills/hive/SKILL.md"
+      "./hive/SKILL.md"
     ]
   }
 }
