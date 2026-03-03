@@ -1,6 +1,7 @@
+import type { ExtensionAPI, ExtensionCommandContext } from "@mariozechner/pi-coding-agent";
 import { Type } from "@sinclair/typebox";
 
-export default function(pi: any) {
+export default function(pi: ExtensionAPI) {
 
   // ==========================================
   // 1. SLASH COMMANDS
@@ -8,14 +9,14 @@ export default function(pi: any) {
 
   pi.registerCommand("hive", {
     description: "Hive Master Controller for orchestration and swarm management.",
-    async handler(args: string[], ctx: any) {
+    handler: async (args: string, ctx: ExtensionCommandContext) => {
       try {
         // Handle empty args explicitly
-        if (!args || args.length === 0) {
+        if (!args || args.trim() === "") {
           return "Usage: /hive [on|status|tree|logs|review]\nType '/hive help' for more info.";
         }
 
-        const action = args[0].trim().toLowerCase();
+        const action = args.trim().toLowerCase();
 
         switch(action) {
           case "on":
@@ -49,7 +50,7 @@ export default function(pi: any) {
         ctx.ui.notify(`Hive error: ${errorMsg}`, "error");
         return `Hive command failed: ${errorMsg}`;
       }
-    }
+    },
   });
 
   // ==========================================
@@ -160,6 +161,4 @@ export default function(pi: any) {
       return { content: [{ type: "text", text: "Hierarchy updated." }] };
     }
   });
-
-  console.log("Hive Protocol Loaded.");
 }
