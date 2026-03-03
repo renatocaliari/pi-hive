@@ -13,8 +13,16 @@ export default function(pi: any) {
   pi.registerCommand("hive", {
     description: "Hive Master Controller for orchestration and swarm management.",
     async handler(args: string[], ctx: any) {
-      console.log("🐝 [HIVE] Command handler called with args:", args);
-      const action = (args && args.length > 0) ? args[0].trim().toLowerCase() : "help";
+      console.log("🐝 [HIVE] Command handler called with args:", JSON.stringify(args));
+      
+      // Handle empty args explicitly
+      if (!args || args.length === 0) {
+        console.log("🐝 [HIVE] No args, showing help");
+        return "Usage: /hive [on|status|tree|logs|review]\nType '/hive help' for more info.";
+      }
+      
+      const action = args[0].trim().toLowerCase();
+      console.log("🐝 [HIVE] Action:", action);
       
       switch(action) {
         case "on":
