@@ -1,6 +1,4 @@
 import { Type } from "@sinclair/typebox";
-import fs from "node:fs";
-import path from "node:path";
 
 export default function(pi: any) {
 
@@ -11,36 +9,47 @@ export default function(pi: any) {
   pi.registerCommand("hive", {
     description: "Hive Master Controller",
     async handler(args: string[], ctx: any) {
-      const action = args[0];
+      // Robust argument handling
+      const action = (args && args.length > 0) ? args[0].trim().toLowerCase() : "help";
       
       switch(action) {
         case "on":
-        case "start":
           ctx.ui.notify("🐝 Activating Hive Mode...", "info");
           await ctx.bash("mkdir -p .hive/cells .hive/archive .hive/logs");
-          return "Hive Mode is now ON. Use /skill load hive.md to begin orchestration.";
+          return "Hive Mode is now ON. Use '/skill load hive' to begin orchestration.";
+        
+        case "review":
+          ctx.ui.notify("Submitting for visual review...", "info");
+          await ctx.bash("pi --non-interactive 'Call submit_to_plannotator(read_file(\".hive/plan.md\"))'");
+          return "Plan submitted to Plannotator.";
+        
         case "status":
           await ctx.bash("pi --non-interactive 'Call get_hive_status()'");
           return "Status refreshed.";
+        
         case "tree":
           await ctx.bash("pi --non-interactive 'Call render_hive_tree()'");
           return "Hierarchy updated.";
+        
+        case "logs":
+          await ctx.bash("pi --non-interactive 'Call stream_worker_logs()'");
+          return "Logs widget updated.";
+        
+        case "help":
         default:
-          ctx.ui.notify("Usage: /hive [on|start|status|tree|review]", "info");
-          return;
+          return "Usage: /hive [on|status|tree|logs|review]";
       }
     }
   });
 
   // ==========================================
-  // 2. PLANNING & TRIAGE (Enhanced with 0.55.4 features)
+  // 2. TOOLS (Triage & Planning)
   // ==========================================
 
   pi.registerTool({
     name: "assess_task_complexity",
     label: "Assess Complexity",
     description: "Determines if a task should be executed directly or delegated to the Hive.",
-    // NEW in 0.55.4: Guidelines injected directly into system prompt
     promptGuidelines: [
       "Use assess_task_complexity when a user request involves more than 3 distinct steps.",
       "If the recommendation is DELEGATE, you MUST create a .hive/plan.md."
@@ -50,9 +59,7 @@ export default function(pi: any) {
       const { task_description } = params;
       const isComplex = task_description.length > 200 || task_description.includes("and");
       const recommendation = isComplex ? "DELEGATE" : "DIRECT_EXECUTION";
-      return { 
-        content: [{ type: "text", text: `Recommendation: ${recommendation}` }]
-      };
+      return { content: [{ type: "text", text: `Recommendation: ${recommendation}` }] };
     }
   });
 
@@ -60,7 +67,6 @@ export default function(pi: any) {
     name: "submit_to_plannotator",
     label: "Submit to Plannotator",
     description: "Uploads plan for visual review.",
-    promptSnippet: "Hive Tool: Submits plans to Plannotator for visual human approval.",
     parameters: Type.Object({ plan_content: Type.String() }),
     async execute(toolCallId: any, params: any, signal: any, onUpdate: any, ctx: any) {
       const mockUrl = `https://plannotator.dev/view?local_file=.hive/plan.md`;
@@ -73,10 +79,6 @@ export default function(pi: any) {
     name: "delegate_task",
     label: "Delegate Task",
     description: "Spawns a worker in an isolated git worktree branch.",
-    promptGuidelines: [
-      "Each delegated task must have a clear spec.md.",
-      "Always use worktrees to keep the main workspace clean."
-    ],
     parameters: Type.Object({
       task_id: Type.String(),
       spec: Type.String(),
@@ -95,14 +97,14 @@ export default function(pi: any) {
       await ctx.bash(`cat <<EOF > ${cellDir}/spec.md\n# Task: ${task_id}\n\n${spec}\nEOF`);
 
       onUpdate(`[${task_id}] Worker running...`);
-      const command = `cd ${cellDir} && pi --skill hive.md --non-interactive "Read spec.md and fulfill. Save to handoff.md."`;
+      const command = `cd ${cellDir} && pi --skill hive --non-interactive "Read spec.md and fulfill. Save to handoff.md."`;
       const { exitCode } = await ctx.bash(command);
 
       return { content: [{ type: "text", text: `Cell ${task_id}: ${exitCode === 0 ? "Completed" : "Failed"}` }] };
     }
   });
 
-  // Monitoring tools (status, tree, etc.)
+  // Monitoring tools
   pi.registerTool({
     name: "get_hive_status",
     label: "Check Hive Status",

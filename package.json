@@ -1,8 +1,6 @@
 {
   "name": "pi-hive",
   "version": "1.0.0",
-  "description": "Hierarchical Agent Swarm for Pi.dev",
-  "license": "MIT",
   "private": false,
   "keywords": [
     "pi-package"
