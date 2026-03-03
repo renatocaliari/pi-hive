@@ -9,14 +9,14 @@ export default function(pi: ExtensionAPI) {
   // ==========================================
 
   pi.registerCommand("hive", {
-    description: "Hive Master Controller for orchestration and swarm management.",
+    description: "Hive: Activate orchestration mode with /hive on",
     handler: async (args: string, ctx: ExtensionCommandContext) => {
       try {
         const cwd = ctx.cwd || process.cwd();
 
         // Handle empty args explicitly
         if (!args || args.trim() === "") {
-          ctx.ui.notify("Usage: /hive [on|status|tree|logs|review]", "info");
+          ctx.ui.notify("Usage: /hive [on|help]", "info");
           return;
         }
 
@@ -28,29 +28,9 @@ export default function(pi: ExtensionAPI) {
             ctx.ui.notify("🐝 Hive Mode is now ON. Use '/skill load hive' to begin orchestration.", "success");
             return;
 
-          case "review":
-            execSync(`pi --non-interactive 'Call submit_to_plannotator(read_file(".hive/plan.md"))'`, { cwd, stdio: "ignore" });
-            ctx.ui.notify("✅ Plan submitted to Plannotator", "success");
-            return;
-
-          case "status":
-            execSync(`pi --non-interactive 'Call get_hive_status()'`, { cwd, stdio: "ignore" });
-            ctx.ui.notify("✅ Hive status refreshed. Check the widget.", "success");
-            return;
-
-          case "tree":
-            execSync(`pi --non-interactive 'Call render_hive_tree()'`, { cwd, stdio: "ignore" });
-            ctx.ui.notify("✅ Hive tree updated. Check the widget.", "success");
-            return;
-
-          case "logs":
-            execSync(`pi --non-interactive 'Call stream_worker_logs()'`, { cwd, stdio: "ignore" });
-            ctx.ui.notify("✅ Hive logs updated. Check the widget.", "success");
-            return;
-
           case "help":
           default:
-            ctx.ui.notify("Usage: /hive [on|status|tree|logs|review]", "info");
+            ctx.ui.notify("Usage: /hive [on|help]\n\n/hive on - Activate Hive Mode", "info");
             return;
         }
       } catch (error) {
