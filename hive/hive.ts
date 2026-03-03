@@ -1,55 +1,53 @@
 import { Type } from "@sinclair/typebox";
 
-console.log("🐝 [HIVE] Extension file loaded");
-
 export default function(pi: any) {
-  console.log("🐝 [HIVE] Extension function called");
 
   // ==========================================
   // 1. SLASH COMMANDS
   // ==========================================
 
-  console.log("🐝 [HIVE] Registering /hive command");
   pi.registerCommand("hive", {
     description: "Hive Master Controller for orchestration and swarm management.",
     async handler(args: string[], ctx: any) {
-      console.log("🐝 [HIVE] Command handler called with args:", JSON.stringify(args));
-      
-      // Handle empty args explicitly
-      if (!args || args.length === 0) {
-        console.log("🐝 [HIVE] No args, showing help");
-        return "Usage: /hive [on|status|tree|logs|review]\nType '/hive help' for more info.";
-      }
-      
-      const action = args[0].trim().toLowerCase();
-      console.log("🐝 [HIVE] Action:", action);
-      
-      switch(action) {
-        case "on":
-          ctx.ui.notify("🐝 Activating Hive Mode...", "info");
-          await ctx.bash("mkdir -p .hive/cells .hive/archive .hive/logs");
-          return "Hive Mode is now ON. Use '/skill load hive' to begin orchestration.";
-        
-        case "review":
-          ctx.ui.notify("Submitting for visual review...", "info");
-          await ctx.bash("pi --non-interactive 'Call submit_to_plannotator(read_file(\".hive/plan.md\"))'");
-          return "Plan submitted to Plannotator.";
-        
-        case "status":
-          await ctx.bash("pi --non-interactive 'Call get_hive_status()'");
-          return "Status refreshed.";
-        
-        case "tree":
-          await ctx.bash("pi --non-interactive 'Call render_hive_tree()'");
-          return "Hierarchy updated.";
-        
-        case "logs":
-          await ctx.bash("pi --non-interactive 'Call stream_worker_logs()'");
-          return "Logs updated.";
-        
-        case "help":
-        default:
-          return "Usage: /hive [on|status|tree|logs|review]";
+      try {
+        // Handle empty args explicitly
+        if (!args || args.length === 0) {
+          return "Usage: /hive [on|status|tree|logs|review]\nType '/hive help' for more info.";
+        }
+
+        const action = args[0].trim().toLowerCase();
+
+        switch(action) {
+          case "on":
+            ctx.ui.notify("🐝 Activating Hive Mode...", "info");
+            await ctx.bash("mkdir -p .hive/cells .hive/archive .hive/logs");
+            return "Hive Mode is now ON. Use '/skill load hive' to begin orchestration.";
+
+          case "review":
+            ctx.ui.notify("Submitting for visual review...", "info");
+            await ctx.bash("pi --non-interactive 'Call submit_to_plannotator(read_file(\".hive/plan.md\"))'");
+            return "Plan submitted to Plannotator.";
+
+          case "status":
+            await ctx.bash("pi --non-interactive 'Call get_hive_status()'");
+            return "Status refreshed.";
+
+          case "tree":
+            await ctx.bash("pi --non-interactive 'Call render_hive_tree()'");
+            return "Hierarchy updated.";
+
+          case "logs":
+            await ctx.bash("pi --non-interactive 'Call stream_worker_logs()'");
+            return "Logs updated.";
+
+          case "help":
+          default:
+            return "Usage: /hive [on|status|tree|logs|review]";
+        }
+      } catch (error) {
+        const errorMsg = error instanceof Error ? error.message : String(error);
+        ctx.ui.notify(`Hive error: ${errorMsg}`, "error");
+        return `Hive command failed: ${errorMsg}`;
       }
     }
   });
