@@ -1,10 +1,15 @@
 {
   "name": "pi-hive",
   "version": "1.0.0",
+  "description": "Hierarchical Agent Orchestration and Visual Planning Protocol for Pi.dev",
   "private": false,
   "keywords": [
-    "pi-package"
+    "pi-package",
+    "orchestration",
+    "swarm",
+    "hierarchical-agents"
   ],
+  "main": "hive/hive.ts",
   "pi": {
     "extensions": [
       "./hive/hive.ts"
@@ -12,5 +17,13 @@
     "skills": [
       "./hive/SKILL.md"
     ]
-  }
+  },
+  "files": [
+    "hive/"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/renatocaliari/pi-hive.git"
+  },
+  "license": "MIT"
 }

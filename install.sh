@@ -1,32 +1,33 @@
 #!/bin/bash
 
-echo "🐝 Installing Pi-Hive (Deep Clean Edition)..."
+echo "🐝 Installing Pi-Hive..."
 
-# Define possible Pi directories
+# Define Pi directories
 PI_AGENT_DIR="$HOME/.pi/agent"
 PI_GLOBAL_DIR="$HOME/.pi"
 
-# 1. CLEANUP (Remove any old loose files)
+# 1. CLEANUP (Remove any old installations to prevent conflicts)
+echo "🧹 Cleaning up old installations..."
 rm -f "$PI_AGENT_DIR/skills/hive.md"
 rm -f "$PI_GLOBAL_DIR/skills/hive.md"
 rm -rf "$PI_AGENT_DIR/skills/hive"
 rm -rf "$PI_GLOBAL_DIR/skills/hive"
+rm -f "$PI_AGENT_DIR/extensions/hive.ts"
+rm -f "$PI_GLOBAL_DIR/extensions/hive.ts"
+rm -rf "$PI_AGENT_DIR/git/github.com/renatocaliari/pi-hive"
+rm -rf "$PI_GLOBAL_DIR/git/github.com/renatocaliari/pi-hive"
+rm -rf "$PI_AGENT_DIR/packages/pi-hive"
+rm -rf "$PI_GLOBAL_DIR/packages/pi-hive"
 
-# 2. CREATE NEW STRUCTURE
-mkdir -p "$PI_AGENT_DIR/extensions"
-mkdir -p "$PI_AGENT_DIR/skills/hive"
-mkdir -p "$PI_GLOBAL_DIR/skills/hive"
+# 2. INSTALL using pi package manager (recommended)
+echo "📦 Installing via pi package manager..."
+pi install "$PWD"
 
-# Timestamp for cache busting
-TS=$(date +%s)
-
-# 3. DOWNLOAD
-echo "Downloading files..."
-curl -fsSL "https://raw.githubusercontent.com/renatocaliari/pi-hive/main/src/index.ts?t=$TS" -o "$PI_AGENT_DIR/extensions/hive.ts"
-curl -fsSL "https://raw.githubusercontent.com/renatocaliari/pi-hive/main/skills/hive/SKILL.md?t=$TS" -o "$PI_AGENT_DIR/skills/hive/SKILL.md"
-
-# Mirror to global skills dir for guaranteed discovery
-cp "$PI_AGENT_DIR/skills/hive/SKILL.md" "$PI_GLOBAL_DIR/skills/hive/SKILL.md"
-
+echo ""
 echo "✅ Pi-Hive installed successfully!"
 echo "🚀 Open Pi and type '/hive on' to start."
+echo ""
+echo "📝 Note: The package.json declares resources under the 'pi' key."
+echo "   Pi will automatically discover:"
+echo "   - Extension: ./hive/hive.ts"
+echo "   - Skill: ./hive/SKILL.md"
