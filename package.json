@@ -10,6 +10,7 @@
     "hierarchical-agents"
   ],
   "main": "hive/hive.ts",
+  "type": "module",
   "pi": {
     "extensions": [
       "./hive/hive.ts"
@@ -25,5 +26,8 @@
     "type": "git",
     "url": "https://github.com/renatocaliari/pi-hive.git"
   },
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {
+    "@sinclair/typebox": "^0.34.0"
+  }
 }
