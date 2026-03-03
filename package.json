@@ -6,11 +6,11 @@
   "pi": {
     "extension": "src/index.ts",
     "skills": [
-      "skills/hive.md"
+      "skills/hive/SKILL.md"
     ]
   },
   "scripts": {
-    "install-local": "mkdir -p ~/.pi/agent/extensions && cp src/index.ts ~/.pi/agent/extensions/hive.ts && mkdir -p ~/.pi/agent/skills && cp skills/hive.md ~/.pi/agent/skills/hive.md"
+    "install-local": "mkdir -p ~/.pi/agent/extensions && cp src/index.ts ~/.pi/agent/extensions/hive.ts && mkdir -p ~/.pi/skills/hive && cp skills/hive/SKILL.md ~/.pi/skills/hive/SKILL.md"
   },
   "dependencies": {
     "@sinclair/typebox": "^0.34.0"
