@@ -1,9 +1,17 @@
 {
-  "name": "pi-hive",
+  "name": "@renatocaliari/pi-hive",
   "version": "1.0.0",
   "description": "Hierarchical Agent Swarm for Pi.dev",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/renatocaliari/pi-hive.git"
+  },
   "pi": {
-    "extensions": ["hive.ts"],
-    "skills": ["skills/hive/SKILL.md"]
+    "extensions": [
+      "hive.ts"
+    ],
+    "skills": [
+      "skills/hive/SKILL.md"
+    ]
   }
 }
