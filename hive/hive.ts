@@ -1,4 +1,5 @@
 import type { ExtensionAPI, ExtensionCommandContext } from "@mariozechner/pi-coding-agent";
+import { execSync } from "node:child_process";
 import { Type } from "@sinclair/typebox";
 
 export default function(pi: ExtensionAPI) {
@@ -11,6 +12,8 @@ export default function(pi: ExtensionAPI) {
     description: "Hive Master Controller for orchestration and swarm management.",
     handler: async (args: string, ctx: ExtensionCommandContext) => {
       try {
+        const cwd = ctx.cwd || process.cwd();
+
         // Handle empty args explicitly
         if (!args || args.trim() === "") {
           return "Usage: /hive [on|status|tree|logs|review]\nType '/hive help' for more info.";
@@ -21,24 +24,24 @@ export default function(pi: ExtensionAPI) {
         switch(action) {
           case "on":
             ctx.ui.notify("🐝 Activating Hive Mode...", "info");
-            await ctx.bash("mkdir -p .hive/cells .hive/archive .hive/logs");
+            execSync("mkdir -p .hive/cells .hive/archive .hive/logs", { cwd, stdio: "ignore" });
             return "Hive Mode is now ON. Use '/skill load hive' to begin orchestration.";
 
           case "review":
             ctx.ui.notify("Submitting for visual review...", "info");
-            await ctx.bash("pi --non-interactive 'Call submit_to_plannotator(read_file(\".hive/plan.md\"))'");
+            execSync(`pi --non-interactive 'Call submit_to_plannotator(read_file(".hive/plan.md"))'`, { cwd, stdio: "ignore" });
             return "Plan submitted to Plannotator.";
 
           case "status":
-            await ctx.bash("pi --non-interactive 'Call get_hive_status()'");
+            execSync(`pi --non-interactive 'Call get_hive_status()'`, { cwd, stdio: "ignore" });
             return "Status refreshed.";
 
           case "tree":
-            await ctx.bash("pi --non-interactive 'Call render_hive_tree()'");
+            execSync(`pi --non-interactive 'Call render_hive_tree()'`, { cwd, stdio: "ignore" });
             return "Hierarchy updated.";
 
           case "logs":
-            await ctx.bash("pi --non-interactive 'Call stream_worker_logs()'");
+            execSync(`pi --non-interactive 'Call stream_worker_logs()'`, { cwd, stdio: "ignore" });
             return "Logs updated.";
 
           case "help":
@@ -83,7 +86,10 @@ export default function(pi: ExtensionAPI) {
     parameters: Type.Object({ plan_content: Type.String() }),
     async execute(toolCallId: any, params: any, signal: any, onUpdate: any, ctx: any) {
       const mockUrl = `https://plannotator.dev/view?local_file=.hive/plan.md`;
-      await ctx.bash(`open "${mockUrl}" 2>/dev/null || xdg-open "${mockUrl}" 2>/dev/null || true`);
+      const openCmd = process.platform === "darwin" ? "open" : "xdg-open";
+      try {
+        execSync(`${openCmd} "${mockUrl}" 2>/dev/null || true`);
+      } catch {}
       ctx.ui.notify("Plannotator view opened", "success");
       return { content: [{ type: "text", text: `Plan view: ${mockUrl}` }] };
     }
@@ -105,22 +111,30 @@ export default function(pi: ExtensionAPI) {
     }),
     async execute(toolCallId: any, params: any, signal: any, onUpdate: any, ctx: any) {
       const { task_id, spec, context_files } = params;
-      const cellDir = `.hive/cells/${task_id}`;
+      const cwd = ctx.cwd || process.cwd();
+      const cellDir = `${cwd}/.hive/cells/${task_id}`;
       const branchName = `hive/cell-${task_id}`;
 
       onUpdate(`[${task_id}] Preparing isolated worktree...`);
-      await ctx.bash(`git checkout -b ${branchName} 2>/dev/null || git checkout ${branchName}`);
-      await ctx.bash(`git checkout -`);
-      await ctx.bash(`git worktree add ${cellDir} ${branchName} 2>/dev/null || echo 'Exists'`);
+      try {
+        execSync(`git checkout -b ${branchName} 2>/dev/null || git checkout ${branchName}`, { cwd, stdio: "ignore" });
+        execSync(`git checkout -`, { cwd, stdio: "ignore" });
+        execSync(`git worktree add ${cellDir} ${branchName} 2>/dev/null || echo 'Exists'`, { stdio: "ignore" });
 
-      await ctx.bash(`cat <<EOF > ${cellDir}/spec.md\n# Task: ${task_id}\n\n${spec}\nEOF`);
+        execSync(`cat <<EOF > ${cellDir}/spec.md\n# Task: ${task_id}\n\n${spec}\nEOF`, { stdio: "ignore" });
 
-      onUpdate(`[${task_id}] Worker running swarm session...`);
-      // Recursive call: the worker also has the hive skill
-      const command = `cd ${cellDir} && pi --skill hive --non-interactive "Read spec.md and fulfill. Save results to handoff.md."`;
-      const { exitCode } = await ctx.bash(command);
-
-      return { content: [{ type: "text", text: `Cell ${task_id}: ${exitCode === 0 ? "Completed" : "Failed"}` }] };
+        onUpdate(`[${task_id}] Worker running swarm session...`);
+        const command = `cd ${cellDir} && pi --skill hive --non-interactive "Read spec.md and fulfill. Save results to handoff.md."`;
+        try {
+          execSync(command, { stdio: "ignore" });
+          return { content: [{ type: "text", text: `Cell ${task_id}: Completed` }] };
+        } catch {
+          return { content: [{ type: "text", text: `Cell ${task_id}: Failed` }] };
+        }
+      } catch (error) {
+        const errorMsg = error instanceof Error ? error.message : String(error);
+        return { content: [{ type: "text", text: `Cell ${task_id} error: ${errorMsg}` }] };
+      }
     }
   });
 
@@ -131,15 +145,26 @@ export default function(pi: ExtensionAPI) {
     description: "Updates the status table widget.",
     promptSnippet: "Hive: Refreshes the swarm status dashboard.",
     async execute(toolCallId: any, params: any, signal: any, onUpdate: any, ctx: any) {
-      const { stdout } = await ctx.bash("ls .hive/cells 2>/dev/null || echo ''");
-      const cells = stdout.split("\n").filter(Boolean);
-      let report = [];
-      for (const cell of cells) {
-        const hasHandoff = (await ctx.bash(`ls .hive/cells/${cell}/handoff.md 2>/dev/null`)).exitCode === 0;
-        report.push({ Cell: cell, Status: hasHandoff ? "DONE" : "BUSY" });
+      const cwd = ctx.cwd || process.cwd();
+      try {
+        const cellsOutput = execSync(`ls .hive/cells 2>/dev/null || echo ''`, { cwd, encoding: "utf-8" });
+        const cells = cellsOutput.split("\n").filter(Boolean);
+        let report = [];
+        for (const cell of cells) {
+          try {
+            execSync(`ls .hive/cells/${cell}/handoff.md 2>/dev/null`, { cwd, stdio: "ignore" });
+            report.push({ Cell: cell, Status: "DONE" });
+          } catch {
+            report.push({ Cell: cell, Status: "BUSY" });
+          }
+        }
+        if (ctx.ui.setWidget) {
+          ctx.ui.setWidget("hive-status", { title: "🐝 Hive Status", type: "table", data: report });
+        }
+        return { content: [{ type: "text", text: "Dashboard updated." }] };
+      } catch (error) {
+        return { content: [{ type: "text", text: "No active cells found." }] };
       }
-      if (ctx.ui.setWidget) ctx.ui.setWidget("hive-status", { title: "🐝 Hive Status", type: "table", data: report });
-      return { content: [{ type: "text", text: "Dashboard updated." }] };
     }
   });
 
@@ -149,16 +174,21 @@ export default function(pi: ExtensionAPI) {
     description: "Updates the hierarchical tree widget.",
     promptSnippet: "Hive: Renders the agent hierarchy nest.",
     async execute(toolCallId: any, params: any, signal: any, onUpdate: any, ctx: any) {
-      const { stdout: cells } = await ctx.bash("ls .hive/cells 2>/dev/null || echo ''");
-      const activeCells = cells.split("\n").filter(Boolean);
-      if (ctx.ui.setWidget) {
-        ctx.ui.setWidget("hive-tree", {
-          title: "🌳 Hive Nest",
-          type: "tree",
-          data: { label: "Queen", children: activeCells.map(c => ({ label: `Worker: ${c}` })) }
-        });
+      const cwd = ctx.cwd || process.cwd();
+      try {
+        const cellsOutput = execSync(`ls .hive/cells 2>/dev/null || echo ''`, { cwd, encoding: "utf-8" });
+        const activeCells = cellsOutput.split("\n").filter(Boolean);
+        if (ctx.ui.setWidget) {
+          ctx.ui.setWidget("hive-tree", {
+            title: "🌳 Hive Nest",
+            type: "tree",
+            data: { label: "Queen", children: activeCells.map(c => ({ label: `Worker: ${c}` })) }
+          });
+        }
+        return { content: [{ type: "text", text: "Hierarchy updated." }] };
+      } catch (error) {
+        return { content: [{ type: "text", text: "No active cells found." }] };
       }
-      return { content: [{ type: "text", text: "Hierarchy updated." }] };
     }
   });
 }
