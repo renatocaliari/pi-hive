@@ -1,25 +1,32 @@
 #!/bin/bash
 
-# Simple Installer for Pi-Hive
-echo "🐝 Installing Pi-Hive Extension & Skill..."
+echo "🐝 Installing Pi-Hive (Deep Clean Edition)..."
 
-PI_DIR="$HOME/.pi/agent"
-EXT_DIR="$PI_DIR/extensions"
-SKILL_DIR="$PI_DIR/skills/hive"
+# Define possible Pi directories
+PI_AGENT_DIR="$HOME/.pi/agent"
+PI_GLOBAL_DIR="$HOME/.pi"
 
-# Create directories if missing
-mkdir -p "$EXT_DIR"
-mkdir -p "$SKILL_DIR"
+# 1. CLEANUP (Remove any old loose files)
+rm -f "$PI_AGENT_DIR/skills/hive.md"
+rm -f "$PI_GLOBAL_DIR/skills/hive.md"
+rm -rf "$PI_AGENT_DIR/skills/hive"
+rm -rf "$PI_GLOBAL_DIR/skills/hive"
 
-# Timestamp to bypass GitHub cache
+# 2. CREATE NEW STRUCTURE
+mkdir -p "$PI_AGENT_DIR/extensions"
+mkdir -p "$PI_AGENT_DIR/skills/hive"
+mkdir -p "$PI_GLOBAL_DIR/skills/hive"
+
+# Timestamp for cache busting
 TS=$(date +%s)
 
-# Download the files directly from GitHub main branch
-curl -fsSL "https://raw.githubusercontent.com/renatocaliari/pi-hive/main/src/index.ts?t=$TS" -o "$EXT_DIR/hive.ts"
-curl -fsSL "https://raw.githubusercontent.com/renatocaliari/pi-hive/main/skills/hive/SKILL.md?t=$TS" -o "$SKILL_DIR/SKILL.md"
+# 3. DOWNLOAD
+echo "Downloading files..."
+curl -fsSL "https://raw.githubusercontent.com/renatocaliari/pi-hive/main/src/index.ts?t=$TS" -o "$PI_AGENT_DIR/extensions/hive.ts"
+curl -fsSL "https://raw.githubusercontent.com/renatocaliari/pi-hive/main/skills/hive/SKILL.md?t=$TS" -o "$PI_AGENT_DIR/skills/hive/SKILL.md"
 
-# Cleanup old skill file if exists
-rm -f "$PI_DIR/skills/hive.md"
+# Mirror to global skills dir for guaranteed discovery
+cp "$PI_AGENT_DIR/skills/hive/SKILL.md" "$PI_GLOBAL_DIR/skills/hive/SKILL.md"
 
 echo "✅ Pi-Hive installed successfully!"
-echo "🚀 Try it now: Run 'pi' in any project and type '/hive on'"
+echo "🚀 Open Pi and type '/hive on' to start."
