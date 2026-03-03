@@ -2,25 +2,11 @@
 
 **Pi-Hive** is an advanced orchestration protocol for [Pi.dev](https://pi.dev). It implements a hierarchical agent swarm using isolated git worktrees and visual planning via [Plannotator](https://github.com/backnotprop/plannotator).
 
-## 🚀 One-Step Installation
+## 🚀 Installation
 
-### Option A: Quick Shell Installer (Recommended)
-This is the fastest way to install Pi-Hive globally on your machine.
+Install directly via the Pi CLI:
 ```bash
-curl -fsSL https://raw.githubusercontent.com/renatocaliari/pi-hive/main/install.sh | bash
-```
-
-### Option B: Local Clone & Install
-If you want to manage the code yourself:
-```bash
-git clone https://github.com/renatocaliari/pi-hive.git
-cd pi-hive
-npm run install-local
-```
-
-### Option C: Skills.sh (Npx)
-```bash
-npx skills add renatocaliari/pi-hive
+pi install https://github.com/renatocaliari/pi-hive
 ```
 
 ---
@@ -39,15 +25,6 @@ npx skills add renatocaliari/pi-hive
 2. **Plan:** Provide a complex task. Pi will create a `.hive/plan.md`.
 3. **Review:** Pi will automatically open the plan in **Plannotator**. Approve it there.
 4. **Delegate:** Once approved, Pi will spawn Workers for each cell.
-
-## 📖 Commands
-
-- `/hive on`: Initialize Hive mode in the current project.
-- `/hive status`: Refresh the UI status widget.
-- `/hive tree`: View the hierarchical agent nest.
-- `/hive logs`: Stream recent worker activity.
-- `/hive plan`: Review the current `plan.md`.
-- `/hive review`: Re-submit the plan to Plannotator.
 
 ## 📜 License
 
