@@ -2,17 +2,8 @@
   "name": "pi-hive",
   "version": "1.0.0",
   "description": "Hierarchical Agent Swarm for Pi.dev",
-  "main": "src/hive.ts",
   "pi": {
-    "extension": "src/hive.ts",
-    "skills": [
-      "skills/hive/SKILL.md"
-    ]
-  },
-  "dependencies": {
-    "@sinclair/typebox": "^0.34.0"
-  },
-  "devDependencies": {
-    "typescript": "^5.0.0"
+    "extensions": ["hive.ts"],
+    "skills": ["skills/hive/SKILL.md"]
   }
 }
